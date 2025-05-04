@@ -2,7 +2,7 @@
 
 A VS Code extension that integrates with the c_formatter_42 tool to automatically format C code according to the 42 School norminette standards. Just learning for fun how to create VSCode or any VSCode fork IDE extension.
 
-Created by mvigara- (Marta)
+Created by mvigara- (@martamakes)
 
 ## Description
 
