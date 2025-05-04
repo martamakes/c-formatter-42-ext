@@ -1,0 +1,2 @@
+[console_scripts]
+c_formatter_42_wrapper = c_formatter_42_wrapper:main

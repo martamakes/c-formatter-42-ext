@@ -59,14 +59,55 @@ async function formatDocument(document) {
     return new Promise((resolve, reject) => {
         // Get the configuration
         const config = vscode.workspace.getConfiguration('c-formatter-42');
-        const formatCommand = config.get('formatCommand', 'c_formatter_42');
+        const formatCommand = config.get('formatCommand', 'c_formatter_42_wrapper');
+        const enhancedMode = config.get('enhancedMode', true);
+        
+        // Use wrapper by default if available
+        let commandToUse = formatCommand;
+        
+        // Check if the user has specified a custom executable via config
+        const customExecutablePath = config.get('executablePath', null);
+        if (customExecutablePath) {
+            try {
+                const stats = fs.statSync(customExecutablePath);
+                if (stats.isFile()) {
+                    commandToUse = customExecutablePath;
+                }
+            } catch (err) {
+                // If the custom path doesn't exist, fall back to the default
+                console.log(`Custom executable path not found: ${customExecutablePath}`);
+            }
+        }
 
-        // Check if c_formatter_42 is available
+        // Add enhanced mode flag if enabled
+        let formatterArgs = [];
+        if (enhancedMode) {
+            formatterArgs.push('--enhanced');
+
+            // Add username and email if provided
+            const username = config.get('username', '');
+            const email = config.get('email', '');
+            
+            if (username) {
+                formatterArgs.push('--username', username);
+            }
+            
+            if (email) {
+                formatterArgs.push('--email', email);
+            }
+        }
+        
+        // Add wrapper verbose flag if debug mode is enabled
+        if (config.get('debug', false)) {
+            formatterArgs.push('--wrapper-verbose');
+        }
+
+        // Check if the formatter is available
         try {
-            which.sync(formatCommand.split(' ')[0]);
+            which.sync(commandToUse.split(' ')[0]);
         } catch (err) {
             vscode.window.showErrorMessage(
-                `42 C Formatter: ${formatCommand} not found. Please install it with 'pip install c_formatter_42'`
+                `42 C Formatter: ${commandToUse} not found. Please install it with 'pip install c_formatter_42_wrapper'`
             );
             return resolve([]);
         }
@@ -79,8 +120,24 @@ async function formatDocument(document) {
             // Write current content to temporary file
             fs.writeFileSync(tmpFilePath, document.getText());
 
-            // Execute c_formatter_42 on the temporary file
-            exec(`${formatCommand} "${tmpFilePath}"`, (error, stdout, stderr) => {
+            // Execute the formatter on the temporary file
+            // Set the environment variable to enable debug logging if configured
+            const env = Object.assign({}, process.env);
+            if (config.get('debug', false)) {
+                env.C_FORMATTER_42_WRAPPER_DEBUG = "1";
+            }
+            
+            // Add any custom environment variables
+            const customEnv = config.get('environmentVariables', {});
+            for (const [key, value] of Object.entries(customEnv)) {
+                env[key] = value;
+            }
+
+            // Combine command and arguments
+            const fullCommand = `${commandToUse} ${formatterArgs.join(' ')} "${tmpFilePath}"`;
+            console.log(`Running formatter command: ${fullCommand}`);
+
+            exec(fullCommand, { env }, (error, stdout, stderr) => {
                 try {
                     if (error) {
                         vscode.window.showErrorMessage(`42 C Formatter error: ${stderr || error.message}`);
@@ -114,11 +171,11 @@ async function formatDocument(document) {
 }
 
 /**
- * Check if c_formatter_42 is installed and offer to install it if not
+ * Check if the formatter is installed and offer to install it if not
  */
 function checkFormatterInstallation() {
     const config = vscode.workspace.getConfiguration('c-formatter-42');
-    const formatCommand = config.get('formatCommand', 'c_formatter_42').split(' ')[0];
+    const formatCommand = config.get('formatCommand', 'c_formatter_42_wrapper').split(' ')[0];
     const installOnStartup = config.get('installOnStartup', false);
     
     try {
@@ -126,7 +183,7 @@ function checkFormatterInstallation() {
         console.log(`42 C Formatter: ${formatCommand} found`);
     } catch (err) {
         if (installOnStartup) {
-            const installCommand = 'pip install c_formatter_42';
+            const installCommand = 'pip install c_formatter_42_wrapper';
             
             vscode.window.showInformationMessage(
                 `42 C Formatter: ${formatCommand} not found. Installing...`,
@@ -137,17 +194,17 @@ function checkFormatterInstallation() {
                 vscode.window.showInformationMessage('42 C Formatter: Installation completed successfully');
             } catch (installErr) {
                 vscode.window.showErrorMessage(
-                    `Failed to install c_formatter_42. Please install manually with '${installCommand}'`,
+                    `Failed to install c_formatter_42_wrapper. Please install manually with '${installCommand}'`,
                 );
             }
         } else {
             vscode.window.showInformationMessage(
-                `42 C Formatter: ${formatCommand} not found. Please install it with 'pip install c_formatter_42'`,
+                `42 C Formatter: ${formatCommand} not found. Please install it with 'pip install c_formatter_42_wrapper'`,
                 'Install Now', 'Ignore'
             ).then(selection => {
                 if (selection === 'Install Now') {
                     const terminal = vscode.window.createTerminal('42 C Formatter Installation');
-                    terminal.sendText('pip install c_formatter_42');
+                    terminal.sendText('pip install c_formatter_42_wrapper');
                     terminal.show();
                 }
             });

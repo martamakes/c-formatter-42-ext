@@ -1,0 +1,33 @@
+Metadata-Version: 2.4
+Name: c_formatter_42_wrapper
+Version: 0.1.0
+Summary: A wrapper for c_formatter_42 that resolves Python environment compatibility issues
+Home-page: https://github.com/martamakes/c-formatter-42-ext
+Author: Marta
+Author-email: mvigara-@student.42madrid.com
+Project-URL: Bug Tracker, https://github.com/martamakes/c-formatter-42-ext/issues
+Project-URL: Source Code, https://github.com/martamakes/c-formatter-42-ext
+Keywords: c,formatter,42,norminette
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Software Development :: Formatters
+Requires-Python: >=3.6
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: project-url
+Dynamic: requires-python
+Dynamic: summary

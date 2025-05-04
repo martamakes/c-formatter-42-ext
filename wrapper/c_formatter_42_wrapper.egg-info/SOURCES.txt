@@ -1,0 +1,9 @@
+README.md
+c_formatter_42_wrapper.py
+c_formatter_42_wrapper.sh
+setup.py
+c_formatter_42_wrapper.egg-info/PKG-INFO
+c_formatter_42_wrapper.egg-info/SOURCES.txt
+c_formatter_42_wrapper.egg-info/dependency_links.txt
+c_formatter_42_wrapper.egg-info/entry_points.txt
+c_formatter_42_wrapper.egg-info/top_level.txt
