@@ -62,6 +62,10 @@ pip install --user c_formatter_42
 3. Click on "..." menu in the Extensions sidebar and select "Install from VSIX..."
 4. Navigate to the downloaded `.vsix` file and select it
 
+```bash
+code --install-extension c-formatter-42-0.1.0.vsix
+```
+
 ## Usage
 
 Once installed, the extension will provide formatting capabilities for C files:
