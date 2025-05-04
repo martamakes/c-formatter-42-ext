@@ -1,0 +1,62 @@
+{
+    "name": "c-formatter-42",
+    "displayName": "42 C Formatter",
+    "description": "Format C files according to 42 School norminette using c_formatter_42",
+    "version": "0.1.0",
+    "repository": {
+  "type": "git",
+  "url": "https://github.com/martamakes/c-formatter-42-ext.git"
+},
+    "engines": {
+      "vscode": "^1.60.0"
+    },
+    "categories": [
+      "Formatters"
+    ],
+    "activationEvents": [
+      "onLanguage:c"
+    ],
+    "main": "./extension.js",
+    "contributes": {
+      "commands": [
+        {
+          "command": "c-formatter-42.format",
+          "title": "Format with 42 C Formatter"
+        }
+      ],
+      "configuration": {
+        "title": "42 C Formatter",
+        "properties": {
+          "c-formatter-42.enableFormatOnSave": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable formatting on save for C files"
+          },
+          "c-formatter-42.formatCommand": {
+            "type": "string",
+            "default": "c_formatter_42",
+            "description": "Command to execute c_formatter_42"
+          },
+          "c-formatter-42.installOnStartup": {
+            "type": "boolean",
+            "default": false,
+            "description": "Attempt to install c_formatter_42 if not found on startup"
+          }
+        }
+      }
+    },
+    "scripts": {
+      "lint": "eslint .",
+      "package": "vsce package",
+      "publish": "vsce publish"
+    },
+    "dependencies": {
+      "which": "^2.0.2"
+    },
+    "devDependencies": {
+      "@types/node": "^14.x",
+      "@types/vscode": "^1.60.0",
+      "eslint": "^8.x",
+      "vsce": "^2.x"
+    }
+  }
