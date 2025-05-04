@@ -26,7 +26,7 @@ Simply put, this extension turns the c_formatter_42 tool from a manual, command-
 
 - [Building Instructions](./BUILDING.md) - Detailed guide for building and packaging the extension
 - [Customization Guide](./CUSTOMIZING.md) - How to modify this extension for other formatters
-- [VSCode Extension Guide](./VSCODE_EXTENSION_GUIDE.md) - Comprehensive guide on creating VSCode extensions
+- [VSCode Extension Guide](./CREATE_YOUR_OWN_EXTENSION_MICROGUIDE.md) - Comprehensive guide on creating VSCode extensions
 
 ## Features
 
