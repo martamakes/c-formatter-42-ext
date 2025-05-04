@@ -2,9 +2,31 @@
 
 A VS Code and Cursor extension that integrates with the c_formatter_42 tool to automatically format C code according to the 42 School norminette standards.
 
+Created by mvigara- (Marta)
+
 ## Description
 
 This extension provides seamless integration of the c_formatter_42 Python package into Visual Studio Code and Cursor. It enables you to automatically format your C code to comply with the 42 School's strict formatting guidelines with a single command or on file save.
+
+## Why Use This Extension Instead of Just c_formatter_42?
+
+This extension enhances your development workflow in several ways that aren't possible with the standalone c_formatter_42 tool:
+
+1. **Integrated Experience** - Format your code directly within your editor without switching to the terminal
+2. **Format on Save** - Automatically apply formatting every time you save a file
+3. **Editor Commands** - Access formatting through the command palette or keyboard shortcuts
+4. **Visual Feedback** - Get notifications about formatting status and errors
+5. **Smoother Workflow** - Eliminate the need to manually specify files to format
+6. **Team Consistency** - Ensure everyone on your team uses the same formatter with the same settings
+7. **Automatic Installation** - Option to automatically install the formatter if not found
+
+Simply put, this extension turns the c_formatter_42 tool from a manual, command-line utility into a seamless part of your coding workflow, saving you time and ensuring consistent code quality with minimal effort.
+
+## Documentation
+
+- [Building Instructions](./BUILDING.md) - Detailed guide for building and packaging the extension
+- [Customization Guide](./CUSTOMIZING.md) - How to modify this extension for other formatters
+- [VSCode Extension Guide](./VSCODE_EXTENSION_GUIDE.md) - Comprehensive guide on creating VSCode extensions
 
 ## Features
 
