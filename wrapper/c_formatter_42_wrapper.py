@@ -19,6 +19,8 @@ Usage:
   --enhanced        Use enhanced formatter with full norminette compliance
   --wrapper-verbose Enable verbose logging
   --wrapper-path    Print the path to the formatter and exit
+  --username        Specify 42 intra handle for header
+  --email           Specify 42 email for header
 """
 
 import os
@@ -312,7 +314,7 @@ def find_enhanced_formatter() -> Optional[str]:
     
     return None
 
-def run_enhanced_formatter(filepath: List[str], args: List[str]) -> int:
+def run_enhanced_formatter(filepaths: List[str], args: List[str]) -> int:
     """Run the enhanced norminette formatter"""
     formatter_path = find_enhanced_formatter()
     if not formatter_path:
@@ -321,7 +323,7 @@ def run_enhanced_formatter(filepath: List[str], args: List[str]) -> int:
     
     try:
         # Run the enhanced formatter
-        cmd = [sys.executable, formatter_path] + args + filepath
+        cmd = [sys.executable, formatter_path] + args + filepaths
         logger.debug(f"Running enhanced formatter: {' '.join(cmd)}")
         result = subprocess.run(cmd, check=False)
         return result.returncode
@@ -339,6 +341,9 @@ def main():
     parser.add_argument("--wrapper-path", action="store_true", help=argparse.SUPPRESS)
     # Add an enhanced mode flag
     parser.add_argument("--enhanced", action="store_true", help=argparse.SUPPRESS)
+    # Add username and email options
+    parser.add_argument("--username", type=str, help=argparse.SUPPRESS)
+    parser.add_argument("--email", type=str, help=argparse.SUPPRESS)
     
     # Do a first pass to check for our custom flags
     args, remaining = parser.parse_known_args()
@@ -346,13 +351,6 @@ def main():
     # If verbose flag is set, enable debug logging
     if args.wrapper_verbose:
         logger.setLevel(logging.DEBUG)
-    
-    # If enhanced mode is requested, use the enhanced formatter
-    if args.enhanced:
-        # Extract the file paths from remaining args (last arguments)
-        filepaths = [arg for arg in remaining if not arg.startswith('-')]
-        args_flags = [arg for arg in remaining if arg.startswith('-')]
-        return run_enhanced_formatter(filepaths, args_flags)
     
     # Find the formatter
     executable_path, module_path, method = find_formatter()
@@ -373,6 +371,20 @@ def main():
             print("Enhanced formatter: Not found")
         
         return 0
+    
+    # If enhanced mode is requested, use the enhanced formatter
+    if args.enhanced:
+        # Extract the file paths from remaining args (last arguments)
+        filepaths = [arg for arg in remaining if not arg.startswith('-')]
+        args_flags = [arg for arg in remaining if arg.startswith('-')]
+        
+        # Add username and email flags if provided
+        if args.username:
+            args_flags.extend(["--username", args.username])
+        if args.email:
+            args_flags.extend(["--email", args.email])
+        
+        return run_enhanced_formatter(filepaths, args_flags)
     
     # Check if we found the formatter
     if method == "none":

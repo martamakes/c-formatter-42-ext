@@ -12,11 +12,18 @@ This extension provides seamless integration of the c_formatter_42 Python packag
 
 The latest version includes an enhanced formatter mode that addresses all norminette requirements:
 
-- **42 Header Integration** - Automatically adds the 42 header if missing
+- **42 Header Integration** - Automatically adds the properly aligned 42 header if missing
 - **Spaces vs Tabs Correction** - Fixes the SPACE_REPLACE_TAB error
 - **Variable Declaration Separation** - Separates declaration and initialization to fix DECL_ASSIGN_LINE errors
 - **Proper Newlines** - Adds newlines after variable declarations (NL_AFTER_VAR_DECL) and braces (BRACE_SHOULD_EOL)
 - **End-of-File Newline** - Ensures files end with a newline
+
+## New Feature: Custom 42 Information
+
+You can now set your 42 intra handle and email for the header:
+
+- Use the "Set 42 Intra Handle and Email" command from the command palette
+- Or configure in settings: `c-formatter-42.username` and `c-formatter-42.email`
 
 ## New in Version 0.2.0: Python Environment Compatibility Improvements
 
@@ -50,6 +57,7 @@ Simply put, this extension turns the c_formatter_42 tool from a manual, command-
 - [Customization Guide](./CUSTOMIZING.md) - How to modify this extension for other formatters
 - [VSCode Extension Guide](./CREATE_YOUR_OWN_EXTENSION_MICROGUIDE.md) - Comprehensive guide on creating VSCode extensions
 - [Installation Guide](./INSTALLATION.md) - Detailed installation instructions
+- [Solution Details](./SOLUTION.md) - Technical information about the solution
 
 ## Features
 
@@ -57,6 +65,7 @@ Simply put, this extension turns the c_formatter_42 tool from a manual, command-
 - Format on save capability (optional)
 - Auto-detection of the c_formatter_42 tool across different Python environments
 - Enhanced formatter mode for full norminette compliance
+- Proper 42 header support with your intra handle and email
 - Multiple installation methods supported (pip, pipx, homebrew)
 - Environment variable configuration (`C_FORMATTER_42_PATH`)
 - Option to install the formatter if not found
@@ -102,7 +111,8 @@ code --install-extension c-formatter-42-0.2.1.vsix
 Once installed, the extension will provide formatting capabilities for C files:
 
 1. Open a C file (with `.c` or `.h` extension)
-2. To format the current file, you can:
+2. Use "Set 42 Intra Handle and Email" command from the command palette to set your 42 information
+3. To format the current file, you can:
    - Right-click and select "Format Document"
    - Use the keyboard shortcut `Shift+Alt+F` (or `Shift+Option+F` on macOS)
    - Press `F1` to open the command palette, then type "Format Document" and press Enter
@@ -116,8 +126,8 @@ Once installed, the extension will provide formatting capabilities for C files:
 - `c-formatter-42.installOnStartup`: Automatically attempt to install the wrapper if not found
 - `c-formatter-42.enhancedMode`: Use enhanced formatter mode for full norminette compliance (default: true)
 - `c-formatter-42.debug`: Enable debug logging for the wrapper
-- `c-formatter-42.username`: Your 42 username for the header (defaults to system username if empty)
-- `c-formatter-42.email`: Your 42 email for the header (defaults to username@student.42.fr if empty)
+- `c-formatter-42.username`: Your 42 intra handle for the header (e.g., "mvigara-")
+- `c-formatter-42.email`: Your 42 email for the header (e.g., "mvigara-@student.42madrid.com")
 - `c-formatter-42.environmentVariables`: Custom environment variables to set when running the formatter
 
 ## Environment Variables
@@ -126,14 +136,15 @@ The wrapper supports the following environment variables:
 
 - `C_FORMATTER_42_PATH`: Path to the c_formatter_42 executable or directory
 - `C_FORMATTER_42_WRAPPER_DEBUG`: Set to "1", "true", or "yes" to enable debug logging
+- `NORMINETTE_FORMATTER_DEBUG`: Set to "1", "true", or "yes" to enable debug logging for the enhanced formatter
 
 ## Enhanced Formatter Mode
 
 The enhanced formatter mode adds functionality to make your code fully compliant with norminette requirements:
 
-1. **42 Header**: Automatically adds the 42 header if missing
-   - Uses your username from git or system
-   - Can be customized using the `username` and `email` settings
+1. **42 Header**: Automatically adds a properly aligned 42 header if missing
+   - Uses your intra handle and email from settings
+   - Automatically pads all fields to align correctly
 
 2. **Variable Declaration**: Separates declaration and initialization
    ```c
@@ -142,12 +153,15 @@ The enhanced formatter mode adds functionality to make your code fully compliant
    
    // After formatting:
    int i;
+   
    i = 0;
    ```
 
 3. **Spacing and Indentation**: Ensures proper use of tabs instead of spaces for indentation
 
 4. **Braces and Newlines**: Ensures proper newlines after braces and variable declarations
+
+5. **Newline at EOF**: Makes sure all files end with a newline
 
 ## Troubleshooting
 
@@ -161,12 +175,11 @@ If you're experiencing issues with the formatter:
    - Set the `C_FORMATTER_42_PATH` environment variable to the location of your formatter
    - Specify the full path in the `c-formatter-42.executablePath` setting
 
-3. **Debug Mode**: Enable debug logging in the extension settings to get more information
+3. **Header Issues**: If the 42 header is incorrect:
+   - Use the "Set 42 Intra Handle and Email" command to configure your info
+   - Check that the settings `c-formatter-42.username` and `c-formatter-42.email` are set correctly
 
-4. **Norminette Errors**: If you're still seeing norminette errors:
-   - Make sure the enhanced mode is enabled in settings
-   - Check that you're using the latest version of the extension
-   - Open an issue on GitHub with details of the specific error
+4. **Debug Mode**: Enable debug logging in the extension settings to get more information
 
 ## Building from Source
 

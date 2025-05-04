@@ -18,6 +18,10 @@
       {
         "command": "c-formatter-42.format",
         "title": "Format with 42 C Formatter"
+      },
+      {
+        "command": "c-formatter-42.set42info",
+        "title": "Set 42 Intra Handle and Email"
       }
     ],
     "configuration": {
@@ -64,12 +68,12 @@
         "c-formatter-42.username": {
           "type": "string",
           "default": "",
-          "description": "Your 42 username for the header (defaults to system username if empty)"
+          "description": "Your 42 intra handle/username for the header (e.g., mvigara-)"
         },
         "c-formatter-42.email": {
           "type": "string",
           "default": "",
-          "description": "Your 42 email for the header (defaults to username@student.42.fr if empty)"
+          "description": "Your 42 email for the header (e.g., mvigara-@student.42madrid.com)"
         }
       }
     }

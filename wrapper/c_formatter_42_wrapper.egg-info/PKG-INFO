@@ -1,4 +1,4 @@
-Metadata-Version: 2.4
+Metadata-Version: 2.1
 Name: c_formatter_42_wrapper
 Version: 0.1.0
 Summary: A wrapper for c_formatter_42 that resolves Python environment compatibility issues
@@ -23,11 +23,3 @@ Classifier: Programming Language :: Python :: 3.12
 Classifier: Programming Language :: Python :: 3.13
 Classifier: Topic :: Software Development :: Formatters
 Requires-Python: >=3.6
-Dynamic: author
-Dynamic: author-email
-Dynamic: classifier
-Dynamic: home-page
-Dynamic: keywords
-Dynamic: project-url
-Dynamic: requires-python
-Dynamic: summary

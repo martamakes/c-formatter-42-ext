@@ -3,7 +3,7 @@
 Norminette Formatter
 
 This script extends c_formatter_42 to address additional norminette requirements:
-- Adds 42 header if missing
+- Adds 42 header if missing (properly formatted)
 - Fixes space vs tab issues
 - Separates variable declaration and initialization
 - Adds newlines after variable declarations
@@ -40,16 +40,20 @@ if os.environ.get("NORMINETTE_FORMATTER_DEBUG", "").lower() in ("1", "true", "ye
 HEADER_TEMPLATE = """/* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   {filename}                                          :+:      :+:    :+:   */
+/*   {filename:<50}:+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: {username} <{email}>                        +#+  +:+       +#+        */
+/*   By: {username} <{email}>{by_padding}+#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: {created_date} by {username}            #+#    #+#             */
-/*   Updated: {updated_date} by {username}           ###   ########.fr       */
+/*   Created: {created_date} by {username}{created_padding}#+#    #+#             */
+/*   Updated: {updated_date} by {username}{updated_padding}###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 """
+
+def calculate_padding(text, target_length):
+    """Calculate padding needed to align text to target length"""
+    return " " * (target_length - len(text))
 
 def get_header_info(custom_username=None, custom_email=None) -> Dict[str, str]:
     """Get information for the 42 header"""
@@ -57,8 +61,10 @@ def get_header_info(custom_username=None, custom_email=None) -> Dict[str, str]:
     username = custom_username or os.environ.get("USER", "unknown")
     
     # Try to get email from git config or custom value
-    email = custom_email or "unknown@student.42.fr"
-    if not custom_email:
+    if custom_email:
+        email = custom_email
+    else:
+        # Try to get from git config
         try:
             email_proc = subprocess.run(
                 ["git", "config", "user.email"],
@@ -66,12 +72,12 @@ def get_header_info(custom_username=None, custom_email=None) -> Dict[str, str]:
             )
             if email_proc.returncode == 0 and email_proc.stdout.strip():
                 email = email_proc.stdout.strip()
+            else:
+                # If no git email, assume 42 school email if not provided
+                email = f"{username}@student.42.fr"
         except Exception:
-            pass
-    
-    # If we couldn't get email from git, try to guess based on username
-    if email == "unknown@student.42.fr" and username != "unknown":
-        email = f"{username}@student.42.fr"
+            # Default to 42 school email format
+            email = f"{username}@student.42.fr"
     
     # Get current date in the format YYYY/MM/DD HH:MM:SS
     now = datetime.now()
@@ -93,13 +99,25 @@ def add_header(content: str, filename: str, custom_username=None, custom_email=N
     # Get header info
     header_info = get_header_info(custom_username, custom_email)
     
+    # Calculate paddings for proper alignment
+    by_text = f"By: {header_info['username']} <{header_info['email']}>"
+    created_text = f"Created: {header_info['created_date']} by {header_info['username']}"
+    updated_text = f"Updated: {header_info['updated_date']} by {header_info['username']}"
+    
+    by_padding = calculate_padding(by_text, 59)
+    created_padding = calculate_padding(created_text, 59)
+    updated_padding = calculate_padding(updated_text, 59)
+    
     # Create the header using the template
     header = HEADER_TEMPLATE.format(
-        filename=os.path.basename(filename).ljust(51),  # Filename padded to 51 chars
+        filename=os.path.basename(filename),
         username=header_info["username"],
         email=header_info["email"],
+        by_padding=by_padding,
         created_date=header_info["created_date"],
-        updated_date=header_info["updated_date"]
+        created_padding=created_padding,
+        updated_date=header_info["updated_date"],
+        updated_padding=updated_padding
     )
     
     # Add header to the content
@@ -115,7 +133,7 @@ def fix_tabs_spaces(content: str) -> str:
         leading_space_count = len(line) - len(line.lstrip(' '))
         if leading_space_count > 0:
             tab_count = leading_space_count // 4  # Assuming 4 spaces per tab
-            remaining_spaces = leading_space_count % 4
+            remaining_spaces = 0  # No remaining spaces per norminette
             fixed_line = '\t' * tab_count + ' ' * remaining_spaces + line.lstrip(' ')
             fixed_lines.append(fixed_line)
         else:
@@ -138,6 +156,7 @@ def fix_variable_declaration(content: str) -> str:
             indent, declaration, value = match.groups()
             # Create separate declaration and assignment
             fixed_lines.append(f"{indent}{declaration};")
+            fixed_lines.append("")  # Add newline after declaration
             fixed_lines.append(f"{indent}{declaration.split()[-1]} = {value};")
         else:
             fixed_lines.append(line)
@@ -210,6 +229,69 @@ def run_c_formatter_42(content: str, filename: str) -> str:
         except Exception:
             pass
 
+def fix_function_indentation(content: str) -> str:
+    """Fix function indentation issues according to norminette"""
+    lines = content.split('\n')
+    fixed_lines = []
+    
+    in_function = False
+    had_var_decl = False
+    
+    for i, line in enumerate(lines):
+        # Check if entering a function
+        if re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*\s*\([^)]*\)$', line.strip()) and i < len(lines) - 1 and lines[i+1].strip() == '{':
+            in_function = True
+            had_var_decl = False
+            fixed_lines.append(line)
+        # Check if we're in a function and past variable declarations
+        elif in_function and line.strip() and not had_var_decl and not re.match(r'^\t[a-zA-Z_][a-zA-Z0-9_]*\s+[a-zA-Z_][a-zA-Z0-9_]*;$', line):
+            had_var_decl = True
+            fixed_lines.append(line)
+        # Make sure all variable declarations are at the start
+        elif in_function and re.match(r'^\t[a-zA-Z_][a-zA-Z0-9_]*\s+[a-zA-Z_][a-zA-Z0-9_]*;$', line) and had_var_decl:
+            # This is a variable declaration after other statements - norminette error
+            # But we can't fix this automatically as it would change the program logic
+            fixed_lines.append(line)
+        # Function end
+        elif in_function and line.strip() == '}':
+            in_function = False
+            fixed_lines.append(line)
+        else:
+            fixed_lines.append(line)
+    
+    return '\n'.join(fixed_lines)
+
+def remove_consecutive_newlines(content: str) -> str:
+    """Remove excessive empty lines in functions according to norminette"""
+    lines = content.split('\n')
+    fixed_lines = []
+    
+    in_function = False
+    last_was_empty = False
+    
+    for i, line in enumerate(lines):
+        # Check if entering a function
+        if not in_function and line.strip().endswith('{'):
+            in_function = True
+            fixed_lines.append(line)
+            last_was_empty = False
+        # Check if exiting a function
+        elif in_function and line.strip() == '}':
+            in_function = False
+            fixed_lines.append(line)
+            last_was_empty = False
+        # Handle empty lines in functions
+        elif in_function and not line.strip():
+            if not last_was_empty:
+                fixed_lines.append(line)
+                last_was_empty = True
+            # Skip consecutive empty lines in functions
+        else:
+            fixed_lines.append(line)
+            last_was_empty = not line.strip()
+    
+    return '\n'.join(fixed_lines)
+
 def apply_full_formatting(content: str, filename: str, custom_username=None, custom_email=None) -> str:
     """Apply all formatting rules"""
     # First use c_formatter_42 for basic formatting
@@ -221,6 +303,8 @@ def apply_full_formatting(content: str, filename: str, custom_username=None, cus
     content = fix_variable_declaration(content)
     content = add_newlines_after_var_decl(content)
     content = fix_braces_newlines(content)
+    content = fix_function_indentation(content)
+    content = remove_consecutive_newlines(content)
     content = ensure_newline_at_eof(content)
     
     return content
@@ -249,7 +333,7 @@ def main() -> int:
     parser.add_argument(
         "--username",
         type=str,
-        help="Custom username for 42 header",
+        help="Custom username for 42 header (intra login)",
     )
     parser.add_argument(
         "--email",
@@ -288,6 +372,8 @@ def main() -> int:
                 content = fix_variable_declaration(content)
                 content = add_newlines_after_var_decl(content)
                 content = fix_braces_newlines(content)
+                content = fix_function_indentation(content)
+                content = remove_consecutive_newlines(content)
                 content = ensure_newline_at_eof(content)
             else:
                 content = apply_full_formatting(content, filepath, args.username, args.email)

@@ -43,11 +43,65 @@ function activate(context) {
         })
     );
 
+    // Register command to set 42 username and email
+    context.subscriptions.push(
+        vscode.commands.registerCommand('c-formatter-42.set42info', async () => {
+            const config = vscode.workspace.getConfiguration('c-formatter-42');
+            
+            // Ask for username (intra handle)
+            const username = await vscode.window.showInputBox({
+                prompt: 'Enter your 42 intra handle/username',
+                placeHolder: 'e.g., jdoe',
+                value: config.get('username', '')
+            });
+            
+            if (username !== undefined) {
+                // Ask for complete email address
+                const email = await vscode.window.showInputBox({
+                    prompt: 'Enter your complete 42 email address',
+                    placeHolder: 'e.g., jdoe@student.42madrid.com',
+                    value: config.get('email', '')
+                });
+                
+                if (email !== undefined) {
+                    // Save to settings
+                    await config.update('username', username, true);
+                    await config.update('email', email, true);
+                    vscode.window.showInformationMessage('42 information saved successfully!');
+                }
+            }
+        })
+    );
+
     // Check if c_formatter_42 is installed
     checkFormatterInstallation();
 
+    // Check if user has set 42 info
+    checkUserInfo(context);
+
     // Setup format on save if enabled
     setupFormatOnSave(context);
+}
+
+/**
+ * Check if user has set their 42 info
+ * @param {vscode.ExtensionContext} context 
+ */
+function checkUserInfo(context) {
+    const config = vscode.workspace.getConfiguration('c-formatter-42');
+    const username = config.get('username', '');
+    const email = config.get('email', '');
+    
+    if (!username || !email) {
+        vscode.window.showInformationMessage(
+            '42 intra handle or email not set. The header will be incorrect without this information.',
+            'Set Now'
+        ).then(selection => {
+            if (selection === 'Set Now') {
+                vscode.commands.executeCommand('c-formatter-42.set42info');
+            }
+        });
+    }
 }
 
 /**
@@ -125,6 +179,7 @@ async function formatDocument(document) {
             const env = Object.assign({}, process.env);
             if (config.get('debug', false)) {
                 env.C_FORMATTER_42_WRAPPER_DEBUG = "1";
+                env.NORMINETTE_FORMATTER_DEBUG = "1";
             }
             
             // Add any custom environment variables
